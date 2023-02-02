@@ -11,8 +11,8 @@ use env_logger::Env;
 extern crate steamlocate;
 use steamlocate::{SteamDir, SteamApp};
 
-use xml::reader::{EventReader, XmlEvent};
-use quick_xml::reader::Reader;
+use xml::{reader::{EventReader, XmlEvent}, attribute::OwnedAttribute};
+use json;
 // Structs
 struct SteamHuntGame {
     hunt_path: PathBuf,
@@ -51,14 +51,43 @@ fn find_hunt_config() -> SteamHuntGame {
 fn read_hunt_attributes(hunt_attributes:PathBuf) {
     info!(target: "Processing", "Reading hunt attributes...");
     
-    // Read file
     let file = File::open(hunt_attributes).unwrap();
     let parser = xml::EventReader::new(file);
-    
+
+    let json = json::object!{};
 
     // TODO: Convert to message
     for event in parser {
-        println!("{:?}", event.unwrap());
+        match event {
+            Ok(XmlEvent::StartElement {attributes, ..}) => {
+                if attributes.len() == 2 {
+                    
+                    // Parse XML events to JSON
+                    let event_name = &attributes[0].value;
+                    let event_categories = event_name.split_terminator('/');
+                    let event_value = &attributes[1].value;
+                    let event_json = json::object!{};
+                    
+                    // Loop over categories
+                    for event_category in event_categories.clone().enumerate() {
+                        if event_category.0 == event_categories.clone().count() - 1 {
+                            // Assign value to json
+                            println!("End: {:?}", event_category.1);
+                        }
+                        else {
+                            // Append new level to json
+                            println!("Not End: {:?}", event_category.1);
+                        }
+
+                    }
+
+                }
+            }
+            Err(e) => {}
+            _ => {}
+        }
+    
+
     }  
     
     // Return attributes as json
@@ -66,12 +95,12 @@ fn read_hunt_attributes(hunt_attributes:PathBuf) {
 
 }
 
-fn compute_match_hash(players) {
-    // Compute the hash for all players in the match.
-    // Lower ordered playername -> sha256
+// fn compute_match_hash(players) {
+//     // Compute the hash for all players in the match.
+//     // Lower ordered playername -> sha256
 
-    // return hash
-}
+//     // return hash
+//}
     
 
 // Execute main function
