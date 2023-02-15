@@ -1,0 +1,6 @@
+# Baseline suite
+pytest >= 7.2.1
+pyinstaller >= 5.8.0
+
+# Valve data format
+vdf >= 3.4
