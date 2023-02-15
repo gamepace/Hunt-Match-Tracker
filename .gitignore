@@ -13,3 +13,6 @@ Cargo.lock
 
 # Visual Studio
 .vscode
+
+# Temp
+tmp/
