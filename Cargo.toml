@@ -10,11 +10,12 @@ edition = "2021"
 log = "0.4.17"
 env_logger = "0.10"
 
-# Hunt & Steam
+# Hunt & Steam VDF
 steamlocate = "0.*"
-
+keyvalues-parser = "0.1.0"
 # XML
 xml-rs = "0.8.4"
 quick-xml = "0.27.1"
-json = "0.12.4"
+# JSON
 serde_json = "1.0.91"
+
