@@ -4,3 +4,6 @@ pyinstaller >= 5.8.0
 
 # Valve data format
 vdf >= 3.4
+
+# Keyboard input
+keyboard >= 0.13.5

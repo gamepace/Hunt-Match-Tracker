@@ -1,13 +1,16 @@
-from pathlib import Path
+from pathlib import Path, WindowsPath, PosixPath
 import winreg
 import vdf
 import os
-
+import xml.etree.ElementTree
+import functools
+import json
 
 from .structs import *
 
-################################################################################################
-
+#################################################################################################
+### Helper Classes ##############################################################################
+#################################################################################################
 class steamHelper():
     def __init__(self) -> None:
         pass
@@ -99,16 +102,72 @@ class steamHelper():
         
             if attributes.is_file() == True:
                 return attributes
-        
-
- 
+         
 class huntHelper():
-    def __init__(self) -> None:
+    def __init__(self) -> None: 
         pass
+    
+
+
+    
+    def get_hunt_json_attributes(self, attributes_path:Path|WindowsPath|PosixPath) -> dict:
+        tree = xml.etree.ElementTree.parse(attributes_path)
+        root = tree.getroot()
         
-    
-if __name__ == "__main__":
-    sh = steamHelper()
-    hunt = sh.get_hunt_steam_app()
-    attributes = sh.get_hunt_attributes()
-    
+        attributes = {}
+        
+        for item in root.findall('./Attr'):
+            
+            attribute_name = item.attrib['name']
+            
+            # Fix inconsisten naming by Crytex ¯\_(ツ)_/¯
+            if attribute_name == "tooltip_downedbyteammate" in attribute_name:
+                attribute_name = attribute_name.replace("tooltip_downedbyteammate", 'tooltipdownedbyteammate')
+            elif attribute_name == "blood_line_name" in attribute_name:
+                attribute_name = attribute_name.replace("blood_line_name", 'bloodlinename')
+            
+            # Split hierachies by delimiters
+            if '/' in attribute_name:
+                categories = attribute_name.split('/')
+                
+            elif '_' in attribute_name:
+                categories = attribute_name.split('_')
+            
+            else:
+                categories = None
+                
+            # Create nested hierachies
+            if categories:  
+                value_dictionary = {}
+                for i, category in enumerate(reversed(categories)):
+                    if i != 0:
+                        value_dictionary = {category: value_dictionary}
+                    else:
+                        value_dictionary[category] = item.attrib['value']
+                                                             
+                attributes = merge_dicts(attributes, value_dictionary)
+            
+            # Pass plain attribute 
+            else:
+                attributes[item.attrib['name']] = item.attrib['value']
+              
+        return attributes
+
+
+#################################################################################################
+### Helper Funcions #############################################################################
+#################################################################################################
+
+def merge_dicts(dict1, dict2):
+    result = {}
+    for key in set(dict1.keys()) | set(dict2.keys()):
+        if key in dict1 and key in dict2:
+            if isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
+                result[key] = merge_dicts(dict1[key], dict2[key])
+            else:
+                result[key] = dict2[key]
+        elif key in dict1:
+            result[key] = dict1[key]
+        else:
+            result[key] = dict2[key]
+    return result
