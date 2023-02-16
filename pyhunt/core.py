@@ -45,7 +45,7 @@ class huntClient():
             self.logger.info('Parse Hunt: Showdown attributes.xml to json ...')
             self.json_attributes = self.hunt.get_hunt_json_attributes(self.attributes_path)       
             
-            # If loggin level is debug then export
+            # If logging level is debug then export
             if self.logger.getEffectiveLevel() == 10:
                 # TODO: #10 Fix issue with debug location @kggx
                 temp_attributes = Path("./tmp/attributes.json")
@@ -54,10 +54,17 @@ class huntClient():
                     json.dump(self.json_attributes, f, indent=1)
                     
             time.sleep(5)
-        
-        
+
+            # TODO: #12 Transform json attributes @kggx
+            
+            # TODO: #13 Implement match meta parsing @kggx
+            
+            # TODO: #5 Implement player results @kggx
+            
+            
         pass
 
     def exit_procedure(self):
         # TODO: #7 Implement a exit procedure that saves the latest information. @kggx
         pass
+    
