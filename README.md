@@ -1,7 +1,7 @@
 # Hunt-Match-Tracker
 ![https://www.huntshowdown.com/assets/img/logo-nav.png](https://www.huntshowdown.com/assets/img/logo-nav.png)
 
-**Hunt-Match-Tracker** is a tool which automatically checks the attributes.xml file in the "\Hunt Showdown\user\profiles\default\" path. In this file are many attributes stored about the player and last match. (Bloodline, MMR, Map, Bosses, etc...).
+**Hunt-Match-Tracker** is a tool which automatically checks the attributes.xml produced by the game [Hund: Showdown by Crytek](https://www.huntshowdown.com/) in the installation path. In this file are many attributes stored about the player and last match. (Bloodline, MMR, Map, Bosses, etc...)
 
 ## How does this work?
 
@@ -43,6 +43,11 @@ This tool extracts player data and pushes it to the Gamepace Data Warehouse. (In
 > Is this tool safe?
 
 This tool should be safe. If you are unsure please read through the code or raise an issue [here](https://github.com/gamepace/Hunt-Match-Tracker/issues)!
+
+> Can I get banned for using this tool?
+
+We do not directly access the game process nor memory and should **not** trigger any EAC actions. However we have no official response by Crytek and therefore the use of this tool is **YOUR OWN RISK**!
+
 
 > What is Gamepace?
 
