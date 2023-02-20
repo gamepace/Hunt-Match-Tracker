@@ -30,7 +30,7 @@ class huntClient():
         self.config_directory = Path().home().joinpath('Documents/Hunt Match Tracker')
         self.config_directory.mkdir(parents=True, exist_ok=True)
         
-        self.temp_directory = self.config_directory.joinpath("state.json")
+        self.temp_directory = self.config_directory.joinpath("temp")
         self.temp_directory.mkdir(parents=True, exist_ok=True)
         
         self.config_filepath = self.config_directory.joinpath("state.json")
