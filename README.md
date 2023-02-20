@@ -8,19 +8,20 @@
 ### Find attributes.xml
 We request the Steam installation path from the Windows Registry and look up informations about the Steam Game Libraries.  
 
+```mermaid
 stateDiagram-v2
     WinRegistry --> SteamInstall : Look up Steam path
     SteamInstall --> SteamGameLib : Get Steam libraries
     SteamGameLib --> HuntShowdownInstall : Get Hunt install path
     HuntShowdownInstall --> Attributes.XML : Find attributes.xml file
     Attributes.XML --> Monitoring : Monitor
-
+```
 ### Monitoring attributes.xml
 Every 60 seconds we read the attributes file and compare the old and  new match hash (SHA-256 Hash from all player ids ordered and concatened). 
 - If a new hash is found we will process the file. 
 - If not we skip the processing.
 
-
+```mermaid
 stateDiagram-v2
     Attributes.xml --> JSON : Transform XML into JSON
     JSON --> Parsing : Create data objects 
@@ -28,7 +29,8 @@ stateDiagram-v2
     Message --> Topic : Push message to KAFKA cluster
     Topic --> ConsumerInsights: Deliver realtime data to Durid
     Topic --> DataWarehouse : Presistant data storage to Citus
-  
+```
+
 # FAQ
 > Where can I download the tool?
 
