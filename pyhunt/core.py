@@ -79,10 +79,8 @@ class huntClient():
                 
                 # If logging level is debug then export
                 if self.logger.getEffectiveLevel() == 10:
-                    # TODO: #10 Fix issue with debug location @kggx
-                    temp_attributes = Path("./tmp/attributes.json")
-                    self.logger.debug(f'Write json to {temp_attributes.absolute()} ...')
-                    with open(temp_attributes, 'w') as f:
+                    self.logger.debug(f'Write json to {self.temp_directory.joinpath("attributes.json")} ...')
+                    with open(self.temp_directory.joinpath("attributes.json"), 'w') as f:
                         json.dump(self.json_attributes, f, indent=1)
 
                 # TODO: #12 Transform json attributes @kggx
