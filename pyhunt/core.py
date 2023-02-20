@@ -1,7 +1,6 @@
 from .helper import *
 import datetime
 import time
-import keyboard
 import logging
 
 # Debug
@@ -21,15 +20,50 @@ class huntClient():
         level = logging.getLevelName(log_level.upper())
         self.logger.setLevel(level)
         self.logger.info('Initialized Logger...')
-        
+            
         # Initialize Client
         self.logger.info('Initialize Client...')
         self.steam = steamHelper()
         self.hunt = huntHelper()
         
+        # Initialize Hunt-Match-Tracker Config
+        self.config_directory = Path().home().joinpath('Documents/Hunt Match Tracker')
+        self.config_directory.mkdir(parents=True, exist_ok=True)
+        
+        self.temp_directory = self.config_directory.joinpath("state.json")
+        self.temp_directory.mkdir(parents=True, exist_ok=True)
+        
+        self.config_filepath = self.config_directory.joinpath("state.json")
+        self.load_config()
+            
         self.logger.info('Get Hunt: Showdow attributes.xml path...')
         self.attributes_path = self.steam.get_hunt_attributes()
                     
+        pass
+     
+    def load_config(self):
+        try:
+            if self.config_filepath.is_file():
+                with open(self.config_filepath, 'r') as f:
+                    self.config = json.loads(f.read())
+                    pass
+            else:
+                self.logger.info('No config file found. Creating new one.')
+                self.config = {"match_hash": ""}
+                self.save_config()
+                pass
+            
+        except:
+            self.logger.warning('Unknown error reading config file.', exc_info=True)
+            self.config = {"match_hash": ""}
+            self.save_config()
+            pass
+            
+            
+    def save_config(self):
+        with open(self.config_filepath, 'w') as f:
+            json.dump(self.config, f)
+        
         pass
         
     def monitor(self):
@@ -50,8 +84,6 @@ class huntClient():
                     self.logger.debug(f'Write json to {temp_attributes.absolute()} ...')
                     with open(temp_attributes, 'w') as f:
                         json.dump(self.json_attributes, f, indent=1)
-                        
-                
 
                 # TODO: #12 Transform json attributes @kggx
                 
@@ -62,10 +94,13 @@ class huntClient():
                 time.sleep(5)
             
         except KeyboardInterrupt:
-            # TODO: #9 Quit routine @kggx
+            self.exit_procedure()
             pass
       
     def exit_procedure(self):
-        # TODO: #7 Implement a exit procedure that saves the latest information. @kggx
+        self.logger.info("Shutdown process...")
+        
+        self.logger.info("Saving latest state to file...")
+        self.save_config()
         pass
     
