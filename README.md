@@ -51,11 +51,14 @@ We do not directly access the game process nor memory and should **not** trigger
 
 > What is Gamepace?
 
-Gamepace is a project that maintains tools to analyze games statistics. Gamepace is a project the host the data infrastructure such as Databases, APIs, Messaging Services and provide tools (open and closed source) for players to monitor progress and statistics for free. 
+Gamepace is a project that maintains tools to analyze games statistics. Gamepace is a project the host the data infrastructure such as Databases, APIs, Messaging Services and provide tools (open and closed source) for players to monitor progress and statistics for free. Feel free to contact [kggx via Twitter](https://twitter.com/kgg_x3)!
 
 > I have a general question.
 
 Please raise a issue [here](https://github.com/gamepace/Hunt-Match-Tracker/issues)!
+
+# Disclaimer
+We at Gamepace are not affiliated with Crytek or Hunt: Showdown in any case.
 
 # Contributors
 <a href="https://github.com/gamepace/Hunt-Match-Tracker/graphs/contributors">
