@@ -83,6 +83,14 @@ class huntClient():
                     with open(self.temp_directory.joinpath("attributes.json"), 'w') as f:
                         json.dump(self.json_attributes, f, indent=1)
 
+                # Check match hash and continue if new hash is found
+                new_hash = self.hunt.get_hunt_match_hash(self.json_attributes)
+                
+                if new_hash != self.config.get("match_hash"):
+                    self.logger.info('New match hash was found!')
+                    self.config['match_hash'] = new_hash
+                    self.save_config()
+                    
                 # TODO: #12 Transform json attributes @kggx
                 
                 # TODO: #13 Implement match meta parsing @kggx
