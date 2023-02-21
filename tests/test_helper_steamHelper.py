@@ -7,8 +7,6 @@ import os
 ### Helper Tests #######################################################
 ########################################################################
 # Needs Steam and Hunt: Showdown to be installed locally.
-#
-#
 
 def test_get_steam_install_location():
     steam = pyhunt.steamHelper()

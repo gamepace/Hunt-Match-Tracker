@@ -3,8 +3,7 @@ import winreg
 import vdf
 import os
 import xml.etree.ElementTree
-import functools
-import json
+import hashlib
 
 from .structs import *
 
@@ -121,10 +120,11 @@ class huntHelper():
             attribute_name = item.attrib['name']
             
             # Fix inconsisten naming by Crytex ¯\_(ツ)_/¯
-            if attribute_name == "tooltip_downedbyteammate" in attribute_name:
+            if "tooltip_downedbyteammate" in attribute_name:
                 attribute_name = attribute_name.replace("tooltip_downedbyteammate", 'tooltipdownedbyteammate')
-            elif attribute_name == "blood_line_name" in attribute_name:
+            elif "blood_line_name" in attribute_name:
                 attribute_name = attribute_name.replace("blood_line_name", 'bloodlinename')
+
             
             # Split hierachies by delimiters
             if '/' in attribute_name:
@@ -152,6 +152,26 @@ class huntHelper():
                 attributes[item.attrib['name']] = item.attrib['value']
               
         return attributes
+
+    def get_hunt_match_hash(self, json_attributes:dict) -> str:
+        player_profileids = []
+        
+        region = json_attributes['Region']
+        
+        # Get player ids and sort
+        for team_key in json_attributes['MissionBagPlayer']:
+            for player_key in json_attributes['MissionBagPlayer'][team_key]:
+                player = json_attributes['MissionBagPlayer'][team_key][player_key]
+                player_profileids.append(player['profileid'])
+                
+        player_profileids.sort()
+        
+        # Combine string and hash
+        match_string = f"{region}_{'_'.join(player_profileids)}"
+        match_hash = hashlib.sha512(match_string.encode()).hexdigest()
+        
+        return match_hash
+        
 
 
 #################################################################################################
