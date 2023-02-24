@@ -86,17 +86,15 @@ class huntClient():
                 # Check match hash and continue if new hash is found
                 new_hash = self.hunt.get_hunt_match_hash(self.json_attributes)
                 
-                if new_hash != self.config.get("match_hash"):
+                if new_hash != self.config.get("match_hash") or self.logger.getEffectiveLevel() == 10:
                     self.logger.info('New match hash was found!')
                     self.config['match_hash'] = new_hash
                     self.save_config()
                     
-                # TODO: #12 Transform json attributes @kggx
-                
-                # TODO: #13 Implement match meta parsing @kggx
-                
-                # TODO: #5 Implement player results @kggx
-            
+                    # Get currently logged in user
+                    self.steam_user = self.steam.get_steam_current_user()
+                    print(self.steam_user) 
+                            
                 time.sleep(5)
             
         except KeyboardInterrupt:

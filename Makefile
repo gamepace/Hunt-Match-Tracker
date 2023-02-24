@@ -19,3 +19,10 @@ launch-help:
 
 launch-debug: 
 	./dist/hunt-match-tracker.exe --debug=True
+
+# Run Configs
+run:
+	python .\hunt-match-tracker.py
+
+run-debug:
+	python .\hunt-match-tracker.py --debug=True 

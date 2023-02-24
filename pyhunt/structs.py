@@ -16,4 +16,3 @@ class steam_user:
     steam_id: int
     steam_accountname:str
     steam_personaname:str
-    steam_most_recent: bool

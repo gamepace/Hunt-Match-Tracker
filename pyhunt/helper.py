@@ -102,20 +102,27 @@ class steamHelper():
             if attributes.is_file() == True:
                 return attributes
     
-    def get_steam_users(self) -> list[steam_user] | None:
+    def get_steam_current_user(self) -> steam_user | None:
         steam_path = self.get_steam_install_location()    
-        
+
         if steam_path:
             # Resolve libraries   
             user_vdf = vdf.load(open(steam_path.joinpath("config/loginusers.vdf"), 'r'))
-            print(user_vdf)
-    
+
+            if len(user_vdf['users']) > 0:
+                for id in user_vdf['users']:
+                    
+                    user = user_vdf['users'][id]
+                    if user['MostRecent'] == "1":
+                        return steam_user(
+                            int(id), 
+                            user['AccountName'], 
+                            user['PersonaName']
+                        )
             
-            # if len(lib_pathes) >= 0:
-            #     return lib_pathes
             
-        return
-         
+     
+## Hunt Showdown Helper Class     
 class huntHelper():
     def __init__(self) -> None: 
         pass
