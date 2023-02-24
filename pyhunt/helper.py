@@ -101,14 +101,25 @@ class steamHelper():
         
             if attributes.is_file() == True:
                 return attributes
+    
+    def get_steam_users(self) -> list[steam_user] | None:
+        steam_path = self.get_steam_install_location()    
+        
+        if steam_path:
+            # Resolve libraries   
+            user_vdf = vdf.load(open(steam_path.joinpath("config/loginusers.vdf"), 'r'))
+            print(user_vdf)
+    
+            
+            # if len(lib_pathes) >= 0:
+            #     return lib_pathes
+            
+        return
          
 class huntHelper():
     def __init__(self) -> None: 
         pass
-    
-
-
-    
+        
     def get_hunt_json_attributes(self, attributes_path:Path|WindowsPath|PosixPath) -> dict:
         tree = xml.etree.ElementTree.parse(attributes_path)
         root = tree.getroot()
