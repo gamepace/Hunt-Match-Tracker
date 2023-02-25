@@ -110,7 +110,6 @@ class huntClient():
                 self.logger.info('Monitor attributes.xml (Press CTRL+C to quit!) ...')
                 
                 # Read attributes
-                self.logger.info('Parse Hunt: Showdown attributes.xml to json ...')
                 self.json_attributes = self.hunt.get_hunt_json_attributes(self.attributes_path)       
                 
                 # If logging level is debug then export
@@ -130,16 +129,27 @@ class huntClient():
                     # Get currently logged in user
                     self.steam_user = self.steam.get_steam_current_user()
                     
-                    # Get player MMR feed
-                    self.logger.info("Produce MMR feed....")
+                    # MAke player MMR feed
+                    self.logger.info(f"huntshowdown_player_meta_{'dev' if self.debug == True else 'prod'}")
                     mmr_messages = self.hunt.generate_player_mmr_messages(new_hash, self.steam_user, self.json_attributes)
                     self.product_messages(
                         mmr_messages, 
-                        f"huntshowdown_player_mmr_{'dev' if self.debug == True else 'prod'}", 
+                        f"huntshowdown_player_meta_{'dev' if self.debug == True else 'prod'}", 
                         Path("./avro/io.gamepace.huntshowdown.player.key.avsc").absolute(),
                         Path("./avro/io.gamepace.huntshowdown.player.value.avsc").absolute()
                     )   
-                             
+                    
+                    # Make team feed
+                    self.logger.info(f"huntshowdown_team_meta_{'dev' if self.debug == True else 'prod'}")
+                    team_messages = self.hunt.generate_team_messages(new_hash, self.steam_user, self.json_attributes)
+                    self.product_messages(
+                        team_messages, 
+                        f"huntshowdown_team_meta_{'dev' if self.debug == True else 'prod'}", 
+                        Path("./avro/io.gamepace.huntshowdown.team.key.avsc").absolute(),
+                        Path("./avro/io.gamepace.huntshowdown.team.value.avsc").absolute()
+                    )
+                 
+                # Sleep until next check                               
                 time.sleep(5 if self.debug == True else 180)
             
         except KeyboardInterrupt:

@@ -205,21 +205,62 @@ class huntHelper():
                     "comitter_steam_id": committer.steam_id,
                     "comitter_steam_accountname": committer.steam_accountname,
                     "comitter_steam_personaname": committer.steam_personaname,
-                    
-                    
                 }
                 
                 value = {
                     "utc_timestamp": datetime.datetime.utcnow().timestamp(),
-                    "hunt_id": int(player_data['profileid']),
-                    "hunt_personaname": player_data['bloodlinename'],
-                    "hunt_mmr": int(player_data['mmr']),   
+                    "hunt_player_id": int(player_data['profileid']),
+                    "hunt_player_personaname": player_data['bloodlinename'],
+                    "hunt_player_mmr": int(player_data['mmr']),   
                 }
                 
                 messages.append((key, value))
         
         return messages
+    
+    
+    def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []
         
+        for team in json_attributes['MissionBagPlayer']:
+            team_players = [] 
+            team_data = json_attributes['MissionBagTeam'][team]
+            
+            for player in json_attributes['MissionBagPlayer'][team]:
+                player_data = json_attributes['MissionBagPlayer'][team][player] 
+                team_players.append({"hunt_player_id": int(player_data['profileid']), "hunt_player_personaname": player_data['bloodlinename']})
+
+
+            team_playerids = [str(x['hunt_player_id']) for x in team_players]
+            team_playerids.sort()
+            team_hash = hashlib.sha512(str(f"{'_'.join(team_playerids)}").encode()).hexdigest()
+            
+            key = {
+                "match_code": match_hash,
+                "event_code": team_hash,
+                "comitter_steam_id": committer.steam_id,
+                "comitter_steam_accountname": committer.steam_accountname,
+                "comitter_steam_personaname": committer.steam_personaname       
+            }
+            
+            
+            value = {
+                "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                "hunt_team_id": team_hash,
+                "hunt_team_handicap": int(team_data['handicap']),
+                "hunt_team_committer_flag": True if team_data['ownteam'].lower() == "true" else False,
+                "hunt_team_invite_flag": True if team_data['isinvite'].lower() == "true" else False,
+                "hunt_team_mmr": int(team_data['mmr']),
+            }
+            
+            # Append Player IDs
+            for i, x in enumerate(team_players):
+                value[f"hunt_team_player_{i+1}_id"] = x['hunt_player_id']
+                value[f"hunt_team_player_{i+1}_name"] = x['hunt_player_personaname']
+            
+            messages.append((key, value))
+        
+        return messages 
 
 
 #################################################################################################
