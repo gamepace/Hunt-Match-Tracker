@@ -4,6 +4,7 @@ import vdf
 import os
 import xml.etree.ElementTree
 import hashlib
+import datetime
 
 from .structs import *
 
@@ -102,6 +103,7 @@ class steamHelper():
             if attributes.is_file() == True:
                 return attributes
     
+    
     def get_steam_current_user(self) -> steam_user | None:
         steam_path = self.get_steam_install_location()    
 
@@ -189,6 +191,34 @@ class huntHelper():
         match_hash = hashlib.sha512(match_string.encode()).hexdigest()
         
         return match_hash
+    
+    def generate_player_mmr_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []
+        
+        for team in json_attributes['MissionBagPlayer']:
+            for player in json_attributes['MissionBagPlayer'][team]:
+                player_data = json_attributes['MissionBagPlayer'][team][player]
+        
+                key = {
+                    "match_code": match_hash,
+                    "event_code": hashlib.sha512(str(player_data['profileid']).encode()).hexdigest(),
+                    "comitter_steam_id": committer.steam_id,
+                    "comitter_steam_accountname": committer.steam_accountname,
+                    "comitter_steam_personaname": committer.steam_personaname,
+                    
+                    
+                }
+                
+                value = {
+                    "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                    "hunt_id": int(player_data['profileid']),
+                    "hunt_personaname": player_data['bloodlinename'],
+                    "hunt_mmr": int(player_data['mmr']),   
+                }
+                
+                messages.append((key, value))
+        
+        return messages
         
 
 

@@ -1,10 +1,16 @@
 from .helper import *
-import datetime
 import time
 import logging
+import json
+
+from confluent_kafka import avro
+from confluent_kafka.avro import AvroProducer
+
 
 # Debug
-import json
+import pprint
+pp = pprint.PrettyPrinter(indent=1)
+
 
 ######################################################################################################
 
@@ -20,6 +26,9 @@ class huntClient():
         level = logging.getLevelName(log_level.upper())
         self.logger.setLevel(level)
         self.logger.info('Initialized Logger...')
+            
+        # Is debug? 
+        self.debug = True if self.logger.getEffectiveLevel() == 10 else False
             
         # Initialize Client
         self.logger.info('Initialize Client...')
@@ -38,8 +47,36 @@ class huntClient():
             
         self.logger.info('Get Hunt: Showdow attributes.xml path...')
         self.attributes_path = self.steam.get_hunt_attributes()
-                    
+        
+        # Setup KAFKA config
+        self.kafka_config = {   
+            "bootstrap.servers": "kafka.b-raum.com:2095",
+            "schema.registry.url": "https://kafka-schemaregistry.b-raum.com"
+        }
+           
         pass
+    
+    def product_messages(self, messages, topic, key_schema_file, value_schema_file):        
+        key_schema = avro.load(key_schema_file)
+        value_schema = avro.load(value_schema_file)
+        
+        producer = AvroProducer(
+            self.kafka_config, 
+            default_key_schema=key_schema,
+            default_value_schema=value_schema
+        )    
+        for key, value in messages:
+                        
+            producer.produce(
+                topic = topic,
+                key = key,
+                value = value        
+            )
+    
+            producer.flush()
+        
+        pass
+    
      
     def load_config(self):
         try:
@@ -70,7 +107,6 @@ class huntClient():
         # Monitor attributes.xml 
         try:
             while True:
-                
                 self.logger.info('Monitor attributes.xml (Press CTRL+C to quit!) ...')
                 
                 # Read attributes
@@ -78,7 +114,7 @@ class huntClient():
                 self.json_attributes = self.hunt.get_hunt_json_attributes(self.attributes_path)       
                 
                 # If logging level is debug then export
-                if self.logger.getEffectiveLevel() == 10:
+                if self.debug == True:
                     self.logger.debug(f'Write json to {self.temp_directory.joinpath("attributes.json")} ...')
                     with open(self.temp_directory.joinpath("attributes.json"), 'w') as f:
                         json.dump(self.json_attributes, f, indent=1)
@@ -86,16 +122,25 @@ class huntClient():
                 # Check match hash and continue if new hash is found
                 new_hash = self.hunt.get_hunt_match_hash(self.json_attributes)
                 
-                if new_hash != self.config.get("match_hash") or self.logger.getEffectiveLevel() == 10:
+                if new_hash != self.config.get("match_hash") or self.debug == True:
                     self.logger.info('New match hash was found!')
                     self.config['match_hash'] = new_hash
                     self.save_config()
                     
                     # Get currently logged in user
                     self.steam_user = self.steam.get_steam_current_user()
-                    print(self.steam_user) 
-                            
-                time.sleep(5)
+                    
+                    # Get player MMR feed
+                    self.logger.info("Produce MMR feed....")
+                    mmr_messages = self.hunt.generate_player_mmr_messages(new_hash, self.steam_user, self.json_attributes)
+                    self.product_messages(
+                        mmr_messages, 
+                        f"huntshowdown_player_mmr_{'dev' if self.debug == True else 'prod'}", 
+                        Path("./avro/io.gamepace.huntshowdown.player.key.avsc").absolute(),
+                        Path("./avro/io.gamepace.huntshowdown.player.value.avsc").absolute()
+                    )   
+                             
+                time.sleep(5 if self.debug == True else 180)
             
         except KeyboardInterrupt:
             self.exit_procedure()
