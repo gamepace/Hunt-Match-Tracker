@@ -7,3 +7,6 @@ vdf >= 3.4
 
 # Keyboard input
 keyboard >= 0.13.5
+
+# KAFKA
+confluent-kafka[avro] >= 1.9.2

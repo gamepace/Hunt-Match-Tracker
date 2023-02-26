@@ -4,7 +4,7 @@ init requirements.txt:
 
 # Compile
 compile hunt-match-tracker.py:
-	pyinstaller -F hunt-match-tracker.py
+	pyinstaller -F hunt-match-tracker.py --add-data="avro/*;avro"
 
 # Testing
 test:
@@ -19,3 +19,10 @@ launch-help:
 
 launch-debug: 
 	./dist/hunt-match-tracker.exe --debug=True
+
+# Run Configs
+run:
+	python .\hunt-match-tracker.py
+
+run-debug:
+	python .\hunt-match-tracker.py --debug=True 

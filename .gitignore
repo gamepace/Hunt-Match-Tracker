@@ -4,7 +4,7 @@
 
 # Temp
 tmp/
-
+config/kafka.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

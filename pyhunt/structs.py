@@ -11,3 +11,8 @@ class steam_app:
     app_build_id:int
     app_install_dir: str
     
+@dataclass
+class steam_user:
+    steam_id: int
+    steam_accountname:str
+    steam_personaname:str

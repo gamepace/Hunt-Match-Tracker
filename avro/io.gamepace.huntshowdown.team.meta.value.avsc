@@ -1,0 +1,95 @@
+{
+    "type": "record",
+    "namespace": "io.gamepace.huntshowdown.team.meta.value",
+    "name": "huntshowdown_team_meta",
+    "doc": "Hunt Showdown Team Meta Feed (Value)",
+    "fields":[
+        {
+			"name": "utc_timestamp",
+			"type": "long",
+			"logicalType": "timestamp-micros",
+            "doc": "Time the mmr was captured"
+        },
+        {
+            "name": "hunt_team_id",
+            "type": "string",
+            "doc": "Hunt Showdown: Team Hash"
+        },
+        {
+            "name": "hunt_team_handicap", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: handicap"
+        },
+        {
+            "name": "hunt_team_committer_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: ownteam"
+        },
+        {
+            "name": "hunt_team_invite_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: isinvite"
+        },
+        {
+            "name": "hunt_team_mmr", 
+            "type": "int",
+            "doc": "Hunt Showdown: mmr"
+        },
+        {
+            "name": "hunt_team_player_1_id", 
+            "type": [
+                "null",
+                "long"
+            ],
+            "default": null,
+            "doc": "Hunt Showdown: player 1 id"
+        },
+        {
+            "name": "hunt_team_player_1_name", 
+            "type": [
+                "null",
+                "string"
+            ],
+            "default": null,
+            "doc": "Hunt Showdown: player 1 name"
+        },
+        {
+            "name": "hunt_team_player_2_id", 
+            "type": [
+                "null",
+                "long"
+            ],
+            "default": null,
+            "doc": "Hunt Showdown: player 2 id"
+        },
+        {
+            "name": "hunt_team_player_2_name", 
+            "type": [
+                "null",
+                "string"
+            ],
+            "default": null,
+            "doc": "Hunt Showdown: player 2 name"
+        },
+        {
+            "name": "hunt_team_player_3_id", 
+            "type": [
+                "null",
+                "long"
+            ],
+            "default": null,
+            "doc": "Hunt Showdown: player 3 id"
+        },
+        {
+            "name": "hunt_team_player_3_name", 
+            "type": [
+                "null",
+                "string"
+            ],
+            "default": null,
+            "doc": "Hunt Showdown: player 3 name"
+        }
+
+        
+    ]
+}

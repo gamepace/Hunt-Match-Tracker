@@ -1,0 +1,68 @@
+{
+    "type": "record",
+    "namespace": "io.gamepace.huntshowdown.match.meta.value",
+    "name": "huntshowdown_player_meta",
+    "doc": "Hunt Showdown Player Meta Feed (Value)",
+    "fields":[
+        {
+			"name": "utc_timestamp",
+			"type": "long",
+			"logicalType": "timestamp-micros",
+            "doc": "Time the mmr was captured"
+        },
+        {
+            "name": "hunt_match_boss_butcher_flag",
+            "type": "boolean",
+            "doc": "Hunt Showdown: MissionBagBoss 1"
+        },
+        {
+            "name": "hunt_match_boss_spider_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: MissionBagBoss 2"
+        },
+        {
+            "name": "hunt_match_boss_assassin_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: MissionBagBoss 2"
+        },
+        {
+            "name": "hunt_match_boss_scrapbeak_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: MissionBagBoss 3"
+        },
+        {
+            "name": "hunt_match_event_code", 
+            "type": [
+                "null", "string"
+            ],
+            "default": null, 
+            "doc": "Hunt Showdown: LastLiveEventIDLoaded"
+        },
+        {
+            "name": "hunt_match_quickplay_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: MissionBagIsQuickPlay"
+        },
+        {
+            "name": "hunt_match_region_code", 
+            "type": "string",
+            "doc": "Hunt Showdown: Region"
+        },
+        {
+            "name": "hunt_match_cemetery_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: PVEModeLastSelected cemetery"
+        },
+        {
+            "name": "hunt_match_creek_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: PVEModeLastSelected creek"
+        },
+        {
+            "name": "hunt_match_civilwar_flag", 
+            "type": "boolean",
+            "doc": "Hunt Showdown: PVEModeLastSelected civilwar"
+        }        
+    ]
+    
+}

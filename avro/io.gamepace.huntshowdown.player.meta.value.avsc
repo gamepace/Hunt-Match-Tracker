@@ -1,0 +1,31 @@
+{
+    "type": "record",
+    "namespace": "io.gamepace.huntshowdown.player.meta.value",
+    "name": "huntshowdown_player_meta",
+    "doc": "Hunt Showdown Player Meta Feed (Value)",
+    "fields":[
+        {
+			"name": "utc_timestamp",
+			"type": "long",
+			"logicalType": "timestamp-micros",
+            "doc": "Time the mmr was captured"
+        },
+        {
+            "name": "hunt_player_id",
+            "type": "long",
+            "doc": "Hunt Showdown: profileid"
+        },
+        {
+            "name": "hunt_player_personaname", 
+            "type": "string",
+            "doc": "Hunt Showdown: bloodlinename"
+        },
+        {
+            "name": "hunt_player_mmr", 
+            "type": "int",
+            "doc": "Hunt Showdown: mmr"
+        }
+    ]
+    
+}
+

@@ -52,3 +52,15 @@ def test_get_hunt_attributes():
     variable_type = type(result)
     result.is_file()
     assert ((variable_type == pathlib.WindowsPath or variable_type == pathlib.PosixPath) and result.is_file()) or result is None
+
+
+def test_get_steam_current_user():
+    steam = pyhunt.steamHelper()
+    result = steam.get_steam_current_user()
+    print(result)
+    
+    if result is not None:
+        variable_type = type(result)
+        assert(result is None or (variable_type == pyhunt.steam_user) and type(result.steam_id) == int and type(result.steam_accountname) == str and type(result.steam_personaname) == str)
+    else:
+        assert(result is None)
