@@ -10,10 +10,19 @@ permissions:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: List repository
-      run: |
-        ls $({ github.workspace })
+    - uses: actions/checkout@v2
+
+    - name: Package Application
+      uses: JackMcKew/pyinstaller-action-windows@main
+      with:
+        path: .
+        spec: hunt-match-tracker.spec
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Hunt-Match-Tracker.exe
+        path: dist/windows
