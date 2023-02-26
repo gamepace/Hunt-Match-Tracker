@@ -5,8 +5,13 @@ import os
 import xml.etree.ElementTree
 import hashlib
 import datetime
+import re
+
 
 from .structs import *
+
+import pprint
+pp = pprint.PrettyPrinter(indent=1)
 
 #################################################################################################
 ### Helper Classes ##############################################################################
@@ -327,8 +332,45 @@ class huntHelper():
         
     
     # Make committer kill log
-
-
+    def generate_match_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []                    
+        
+        for team in json_attributes['MissionBagPlayer']:
+            for player in json_attributes['MissionBagPlayer'][team]:
+                player_data = json_attributes['MissionBagPlayer'][team][player]
+                
+                other_player_id = player_data['profileid']
+                other_player_name = player_data['bloodlinename']
+                                           
+                for attribute in player_data.keys():
+                    if "tooltip" in attribute:                        
+                        event_times = re.findall(r"~[0-9]{1,2}:[0-9]{1,2}", player_data[attribute])
+                        event_clean_times = [x.replace('~', '') for x in event_times]
+                        
+                        for timestamp in event_clean_times:
+                            minute, second = int(timestamp.split(':')[0]), int(timestamp.split(':')[1])
+                                                        
+                            key = {
+                                "match_code": match_hash,
+                                "event_code": hashlib.sha512(f"{timestamp}_{other_player_id}_{committer.steam_id}_{attribute}".encode()).hexdigest(),
+                                "comitter_steam_id": committer.steam_id,
+                                "comitter_steam_accountname": committer.steam_accountname,
+                                "comitter_steam_personaname": committer.steam_personaname       
+                            }
+                            
+                            value = {
+                                "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                                "match_event_hunt_player_id": int(other_player_id),
+                                "match_event_hunt_player_name": other_player_name,
+                                "match_event_name": attribute.replace('tooltip', ''),
+                                "match_event_minute": int(minute),
+                                "match_event_second": int(second)
+                            }
+                            
+                            messages.append((key, value))
+        
+        return messages
+    
 #################################################################################################
 ### Helper Funcions #############################################################################
 #################################################################################################
