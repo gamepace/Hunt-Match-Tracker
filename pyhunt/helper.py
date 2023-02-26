@@ -192,9 +192,10 @@ class huntHelper():
         
         return match_hash
     
-    def generate_player_mmr_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_player_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
         messages = []
         
+        # for each player
         for team in json_attributes['MissionBagPlayer']:
             for player in json_attributes['MissionBagPlayer'][team]:
                 player_data = json_attributes['MissionBagPlayer'][team][player]
@@ -222,6 +223,7 @@ class huntHelper():
     def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
         messages = []
         
+        # For each team
         for team in json_attributes['MissionBagPlayer']:
             team_players = [] 
             team_data = json_attributes['MissionBagTeam'][team]
@@ -235,6 +237,7 @@ class huntHelper():
             team_playerids.sort()
             team_hash = hashlib.sha512(str(f"{'_'.join(team_playerids)}").encode()).hexdigest()
             
+            # Make Key
             key = {
                 "match_code": match_hash,
                 "event_code": team_hash,
@@ -242,8 +245,7 @@ class huntHelper():
                 "comitter_steam_accountname": committer.steam_accountname,
                 "comitter_steam_personaname": committer.steam_personaname       
             }
-            
-            
+                      
             value = {
                 "utc_timestamp": datetime.datetime.utcnow().timestamp(),
                 "hunt_team_id": team_hash,
@@ -258,9 +260,40 @@ class huntHelper():
                 value[f"hunt_team_player_{i+1}_id"] = x['hunt_player_id']
                 value[f"hunt_team_player_{i+1}_name"] = x['hunt_player_personaname']
             
+            # Append Message
             messages.append((key, value))
         
         return messages 
+    
+    # Make match event
+    def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple[dict]:
+        # Make Key
+        key = {
+            "match_code": match_hash,
+            "event_code": match_hash,
+            "comitter_steam_id": committer.steam_id,
+            "comitter_steam_accountname": committer.steam_accountname,
+            "comitter_steam_personaname": committer.steam_personaname       
+        }
+                    
+        value = {
+            "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+            "hunt_match_boss_butcher_flag": True if json_attributes['MissionBagBoss']['0'].lower() == "true" else False,
+            "hunt_match_boss_spider_flag": True if json_attributes['MissionBagBoss']['1'].lower() == "true" else False,
+            "hunt_match_boss_assassin_flag": True if json_attributes['MissionBagBoss']['2'].lower() == "true" else False,
+            "hunt_match_boss_scrapbeak_flag": True if json_attributes['MissionBagBoss']['3'].lower() == "true" else False,
+            "hunt_match_event_code": json_attributes.get('LastLiveEventIDLoaded'),
+            "hunt_match_quickplay_flag": True if json_attributes['MissionBagIsQuickPlay'].lower() == "true" else False,
+            "hunt_match_region_code": json_attributes['Region'],
+            "hunt_match_cemetery_flag": True if json_attributes['PVEModeLastSelected']['cemetery'] != "-1" else False,
+            "hunt_match_creek_flag": True if json_attributes['PVEModeLastSelected']['creek'] != "-1" else False,
+            "hunt_match_civilwar_flag": True if json_attributes['PVEModeLastSelected']['civilwar'] != "-1" else False
+        }
+        
+        return (key, value)
+        
+    
+    # Make kill log events
 
 
 #################################################################################################

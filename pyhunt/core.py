@@ -131,12 +131,12 @@ class huntClient():
                     
                     # MAke player MMR feed
                     self.logger.info(f"huntshowdown_player_meta_{'dev' if self.debug == True else 'prod'}")
-                    mmr_messages = self.hunt.generate_player_mmr_messages(new_hash, self.steam_user, self.json_attributes)
+                    mmr_messages = self.hunt.generate_player_messages(new_hash, self.steam_user, self.json_attributes)
                     self.product_messages(
                         mmr_messages, 
                         f"huntshowdown_player_meta_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.player.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.player.value.avsc").absolute()
+                        Path("./avro/io.gamepace.huntshowdown.player.meta.key.avsc").absolute(),
+                        Path("./avro/io.gamepace.huntshowdown.player.meta.value.avsc").absolute()
                     )   
                     
                     # Make team feed
@@ -145,9 +145,28 @@ class huntClient():
                     self.product_messages(
                         team_messages, 
                         f"huntshowdown_team_meta_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.team.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.team.value.avsc").absolute()
+                        Path("./avro/io.gamepace.huntshowdown.team.meta.key.avsc").absolute(),
+                        Path("./avro/io.gamepace.huntshowdown.team.meta.value.avsc").absolute()
                     )
+                    
+                    # Make match feed
+                    self.logger.info(f"huntshowdown_match_meta_{'dev' if self.debug == True else 'prod'}")
+                    match_message = self.hunt.generate_match_message(new_hash, self.steam_user, self.json_attributes)
+                    self.product_messages(
+                        [match_message], 
+                        f"huntshowdown_match_meta_{'dev' if self.debug == True else 'prod'}", 
+                        Path("./avro/io.gamepace.huntshowdown.match.meta.key.avsc").absolute(),
+                        Path("./avro/io.gamepace.huntshowdown.match.meta.value.avsc").absolute()
+                    )
+                    
+                    # Make committer event bags
+                    
+                    
+                    # Make match kill feed
+                    
+                                       
+                    
+                    self.logger.info(f"Finished processing new match.")
                  
                 # Sleep until next check                               
                 time.sleep(5 if self.debug == True else 180)
