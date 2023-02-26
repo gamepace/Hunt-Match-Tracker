@@ -45,7 +45,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dist/windows/hunt-match-tracker.exe
-        asset_name: hunt-match-tracker-${{ github.ref }}.exe
+        asset_name: hunt-match-tracker-${{ github.ref_name }}.exe
         asset_content_type: application/octet-stream
 
     
