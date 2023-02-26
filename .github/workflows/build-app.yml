@@ -32,7 +32,7 @@ jobs:
         draft: false
         prerelease: false
         release_name: ${{ github.GITHUB_RUN_ID }} | ${{ github.GITHUB_SHA }}
-        tag_name: ${{ github.GITHUB_RUN_ID }}-${{ github.GITHUB_SHA }}
+        tag_name: Version_${{ github.GITHUB_RUN_ID }}
     
       env:
         GITHUB_TOKEN: ${{ github.token }}
