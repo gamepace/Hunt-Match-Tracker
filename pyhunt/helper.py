@@ -3,10 +3,15 @@ import winreg
 import vdf
 import os
 import xml.etree.ElementTree
-import functools
-import json
+import hashlib
+import datetime
+import re
+
 
 from .structs import *
+
+import pprint
+pp = pprint.PrettyPrinter(indent=1)
 
 #################################################################################################
 ### Helper Classes ##############################################################################
@@ -102,14 +107,33 @@ class steamHelper():
         
             if attributes.is_file() == True:
                 return attributes
-         
+    
+    
+    def get_steam_current_user(self) -> steam_user | None:
+        steam_path = self.get_steam_install_location()    
+
+        if steam_path:
+            # Resolve libraries   
+            user_vdf = vdf.load(open(steam_path.joinpath("config/loginusers.vdf"), 'r'))
+
+            if len(user_vdf['users']) > 0:
+                for id in user_vdf['users']:
+                    
+                    user = user_vdf['users'][id]
+                    if user['MostRecent'] == "1":
+                        return steam_user(
+                            int(id), 
+                            user['AccountName'], 
+                            user['PersonaName']
+                        )
+            
+            
+     
+## Hunt Showdown Helper Class     
 class huntHelper():
     def __init__(self) -> None: 
         pass
-    
-
-
-    
+        
     def get_hunt_json_attributes(self, attributes_path:Path|WindowsPath|PosixPath) -> dict:
         tree = xml.etree.ElementTree.parse(attributes_path)
         root = tree.getroot()
@@ -121,10 +145,11 @@ class huntHelper():
             attribute_name = item.attrib['name']
             
             # Fix inconsisten naming by Crytex ¯\_(ツ)_/¯
-            if attribute_name == "tooltip_downedbyteammate" in attribute_name:
+            if "tooltip_downedbyteammate" in attribute_name:
                 attribute_name = attribute_name.replace("tooltip_downedbyteammate", 'tooltipdownedbyteammate')
-            elif attribute_name == "blood_line_name" in attribute_name:
+            elif "blood_line_name" in attribute_name:
                 attribute_name = attribute_name.replace("blood_line_name", 'bloodlinename')
+
             
             # Split hierachies by delimiters
             if '/' in attribute_name:
@@ -153,7 +178,199 @@ class huntHelper():
               
         return attributes
 
+    def get_hunt_match_hash(self, json_attributes:dict) -> str:
+        player_profileids = []
+        
+        region = json_attributes['Region']
+        
+        # Get player ids and sort
+        for team_key in json_attributes['MissionBagPlayer']:
+            for player_key in json_attributes['MissionBagPlayer'][team_key]:
+                player = json_attributes['MissionBagPlayer'][team_key][player_key]
+                player_profileids.append(player['profileid'])
+                
+        player_profileids.sort()
+        
+        # Combine string and hash
+        match_string = f"{region}_{'_'.join(player_profileids)}"
+        match_hash = hashlib.sha512(match_string.encode()).hexdigest()
+        
+        return match_hash
+    
+    def generate_player_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []
+        
+        # for each player
+        for team in json_attributes['MissionBagPlayer']:
+            for player in json_attributes['MissionBagPlayer'][team]:
+                player_data = json_attributes['MissionBagPlayer'][team][player]
+        
+                key = {
+                    "match_code": match_hash,
+                    "event_code": hashlib.sha512(str(player_data['profileid']).encode()).hexdigest(),
+                    "comitter_steam_id": committer.steam_id,
+                    "comitter_steam_accountname": committer.steam_accountname,
+                    "comitter_steam_personaname": committer.steam_personaname,
+                }
+                
+                value = {
+                    "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                    "hunt_player_id": int(player_data['profileid']),
+                    "hunt_player_personaname": player_data['bloodlinename'],
+                    "hunt_player_mmr": int(player_data['mmr']),   
+                }
+                
+                messages.append((key, value))
+        
+        return messages
+    
+    
+    def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []
+        
+        # For each team
+        for team in json_attributes['MissionBagPlayer']:
+            team_players = [] 
+            team_data = json_attributes['MissionBagTeam'][team]
+            
+            for player in json_attributes['MissionBagPlayer'][team]:
+                player_data = json_attributes['MissionBagPlayer'][team][player] 
+                team_players.append({"hunt_player_id": int(player_data['profileid']), "hunt_player_personaname": player_data['bloodlinename']})
 
+
+            team_playerids = [str(x['hunt_player_id']) for x in team_players]
+            team_playerids.sort()
+            team_hash = hashlib.sha512(str(f"{'_'.join(team_playerids)}").encode()).hexdigest()
+            
+            # Make Key
+            key = {
+                "match_code": match_hash,
+                "event_code": team_hash,
+                "comitter_steam_id": committer.steam_id,
+                "comitter_steam_accountname": committer.steam_accountname,
+                "comitter_steam_personaname": committer.steam_personaname       
+            }
+                      
+            value = {
+                "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                "hunt_team_id": team_hash,
+                "hunt_team_handicap": int(team_data['handicap']),
+                "hunt_team_committer_flag": True if team_data['ownteam'].lower() == "true" else False,
+                "hunt_team_invite_flag": True if team_data['isinvite'].lower() == "true" else False,
+                "hunt_team_mmr": int(team_data['mmr']),
+            }
+            
+            # Append Player IDs
+            for i, x in enumerate(team_players):
+                value[f"hunt_team_player_{i+1}_id"] = x['hunt_player_id']
+                value[f"hunt_team_player_{i+1}_name"] = x['hunt_player_personaname']
+            
+            # Append Message
+            messages.append((key, value))
+        
+        return messages 
+    
+    # Make match event
+    def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple[dict]:
+        key = {
+            "match_code": match_hash,
+            "event_code": match_hash,
+            "comitter_steam_id": committer.steam_id,
+            "comitter_steam_accountname": committer.steam_accountname,
+            "comitter_steam_personaname": committer.steam_personaname       
+        }
+                    
+        value = {
+            "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+            "hunt_match_boss_butcher_flag": True if json_attributes['MissionBagBoss']['0'].lower() == "true" else False,
+            "hunt_match_boss_spider_flag": True if json_attributes['MissionBagBoss']['1'].lower() == "true" else False,
+            "hunt_match_boss_assassin_flag": True if json_attributes['MissionBagBoss']['2'].lower() == "true" else False,
+            "hunt_match_boss_scrapbeak_flag": True if json_attributes['MissionBagBoss']['3'].lower() == "true" else False,
+            "hunt_match_event_code": json_attributes.get('LastLiveEventIDLoaded'),
+            "hunt_match_quickplay_flag": True if json_attributes['MissionBagIsQuickPlay'].lower() == "true" else False,
+            "hunt_match_region_code": json_attributes['Region'],
+            "hunt_match_cemetery_flag": True if json_attributes['PVEModeLastSelected']['cemetery'] != "-1" else False,
+            "hunt_match_creek_flag": True if json_attributes['PVEModeLastSelected']['creek'] != "-1" else False,
+            "hunt_match_civilwar_flag": True if json_attributes['PVEModeLastSelected']['civilwar'] != "-1" else False
+        }
+        
+        return (key, value)
+
+    # Make committer event log
+    def generate_mission_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []
+        
+        for event in json_attributes['MissionBagEntry']:
+            event_data = json_attributes['MissionBagEntry'][event]
+            key = {
+                "match_code": match_hash,
+                "event_code": hashlib.sha512(f"{event}_{event_data['category']}_{event_data['reward']}".encode()).hexdigest(),
+                "comitter_steam_id": committer.steam_id,
+                "comitter_steam_accountname": committer.steam_accountname,
+                "comitter_steam_personaname": committer.steam_personaname       
+            }
+               
+            value = {
+                "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                "hunt_mission_event_bag_id": int(event),
+                "hunt_mission_event_reward_id": int(event_data['reward']),
+                "hunt_mission_event_reward_size": int(event_data['rewardSize']),
+                "hunt_mission_event_ui_icon_1": event_data['iconPath'],
+                "hunt_mission_event_ui_icon_2": event_data['iconPath2'],
+                "hunt_mission_event_ui_name_1": event_data['uiName'],
+                "hunt_mission_event_ui_name_2": event_data['uiName2'],
+                "hunt_mission_event_descriptor_name": event_data['descriptorName'],
+                "hunt_mission_event_descriptor_score": int(event_data['descriptorScore']),
+                "hunt_mission_event_descriptor_type": int(event_data['descriptorType']),   
+                "hunt_mission_event_category": event_data['category'],
+                "hunt_mission_event_amount": int(event_data['amount'])  
+            }
+            
+            messages.append((key, value))
+        
+        return messages
+        
+    
+    # Make committer kill log
+    def generate_match_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []                    
+        
+        for team in json_attributes['MissionBagPlayer']:
+            for player in json_attributes['MissionBagPlayer'][team]:
+                player_data = json_attributes['MissionBagPlayer'][team][player]
+                
+                other_player_id = player_data['profileid']
+                other_player_name = player_data['bloodlinename']
+                                           
+                for attribute in player_data.keys():
+                    if "tooltip" in attribute:                        
+                        event_times = re.findall(r"~[0-9]{1,2}:[0-9]{1,2}", player_data[attribute])
+                        event_clean_times = [x.replace('~', '') for x in event_times]
+                        
+                        for timestamp in event_clean_times:
+                            minute, second = int(timestamp.split(':')[0]), int(timestamp.split(':')[1])
+                                                        
+                            key = {
+                                "match_code": match_hash,
+                                "event_code": hashlib.sha512(f"{timestamp}_{other_player_id}_{committer.steam_id}_{attribute}".encode()).hexdigest(),
+                                "comitter_steam_id": committer.steam_id,
+                                "comitter_steam_accountname": committer.steam_accountname,
+                                "comitter_steam_personaname": committer.steam_personaname       
+                            }
+                            
+                            value = {
+                                "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                                "match_event_hunt_player_id": int(other_player_id),
+                                "match_event_hunt_player_name": other_player_name,
+                                "match_event_name": attribute.replace('tooltip', ''),
+                                "match_event_minute": int(minute),
+                                "match_event_second": int(second)
+                            }
+                            
+                            messages.append((key, value))
+        
+        return messages
+    
 #################################################################################################
 ### Helper Funcions #############################################################################
 #################################################################################################

@@ -1,0 +1,76 @@
+{
+    "type": "record",
+    "namespace": "io.gamepace.huntshowdown.mission.event.value",
+    "name": "huntshowdown_mission_event",
+    "doc": "Hunt Showdown Mission Event Feed (Value)",
+    "fields":[
+        {
+			"name": "utc_timestamp",
+			"type": "long",
+			"logicalType": "timestamp-micros",
+            "doc": "Time the mmr was captured"
+        },
+        {
+            "name": "hunt_mission_event_bag_id",
+            "type": "int",
+            "doc": "Hunt Showdown: MissionBagEntry "
+        },
+        {
+            "name": "hunt_mission_event_reward_id", 
+            "type": "int",
+            "doc": "Hunt Showdown: MissionBagEntry -> reward"
+        },
+        {
+            "name": "hunt_mission_event_reward_size", 
+            "type": "int",
+            "doc": "Hunt Showdown: MissionBagEntry -> rewardSize"
+        },
+        {
+            "name": "hunt_mission_event_ui_icon_1", 
+            "type": "string",
+            "doc": "Hunt Showdown: MissionBagEntry -> iconPath"
+        },
+        {
+            "name": "hunt_mission_event_ui_icon_2", 
+            "type": "string",
+            "doc": "Hunt Showdown: MissionBagEntry -> iconPath2"
+        },
+        {
+            "name": "hunt_mission_event_ui_name_1", 
+            "type": "string",
+            "doc": "Hunt Showdown: MissionBagEntry -> uiName"
+        },
+        {
+            "name": "hunt_mission_event_ui_name_2", 
+            "type": "string",
+            "doc": "Hunt Showdown: MissionBagEntry -> uiName2"
+        },
+        {
+            "name": "hunt_mission_event_descriptor_name", 
+            "type": "string",
+            "doc": "Hunt Showdown: MissionBagEntry -> descriptorName"
+        },
+        {
+            "name": "hunt_mission_event_descriptor_score", 
+            "type": "int",
+            "doc": "Hunt Showdown: MissionBagEntry -> descriptorScore"
+        },
+        {
+            "name": "hunt_mission_event_descriptor_type", 
+            "type": "int",
+            "doc": "Hunt Showdown: MissionBagEntry -> descriptorType"
+        },
+        {
+            "name": "hunt_mission_event_category", 
+            "type": "string",
+            "doc": "Hunt Showdown: MissionBagEntry -> category"
+        },
+        {
+            "name": "hunt_mission_event_amount", 
+            "type": "int",
+            "doc": "Hunt Showdown: MissionBagEntry -> amount"
+        }
+        
+    ]
+    
+}

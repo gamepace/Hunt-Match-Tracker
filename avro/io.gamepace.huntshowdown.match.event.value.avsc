@@ -1,0 +1,41 @@
+{
+    "type": "record",
+    "namespace": "io.gamepace.huntshowdown.match.event.value",
+    "name": "huntshowdown_match_event",
+    "doc": "Hunt Showdown Match Event Feed (Value)",
+    "fields":[
+        {
+			"name": "utc_timestamp",
+			"type": "long",
+			"logicalType": "timestamp-micros",
+            "doc": "Time the mmr was captured"
+        },
+        {
+            "name": "match_event_hunt_player_id",
+            "type": "long",
+            "doc": "Hunt Showdown: profileid"
+        },
+        {
+            "name": "match_event_hunt_player_name", 
+            "type": "string",
+            "doc": "Hunt Showdown: bloodlinename"
+        },
+        {
+            "name": "match_event_name", 
+            "type": "string",
+            "doc": "Hunt Showdown: player attribute key"
+        },
+        {
+            "name": "match_event_minute", 
+            "type": "int",
+            "doc": "Hunt Showdown: Event Minute"
+        },
+        {
+            "name": "match_event_second", 
+            "type": "int",
+            "doc": "Hunt Showdown: Event Second"
+        }
+              
+    ]
+    
+}
