@@ -267,7 +267,6 @@ class huntHelper():
     
     # Make match event
     def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple[dict]:
-        # Make Key
         key = {
             "match_code": match_hash,
             "event_code": match_hash,
@@ -291,9 +290,43 @@ class huntHelper():
         }
         
         return (key, value)
+
+    # Make committer event log
+    def generate_mission_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+        messages = []
+        
+        for event in json_attributes['MissionBagEntry']:
+            event_data = json_attributes['MissionBagEntry'][event]
+            key = {
+                "match_code": match_hash,
+                "event_code": hashlib.sha512(f"{event}_{event_data['category']}_{event_data['reward']}".encode()).hexdigest(),
+                "comitter_steam_id": committer.steam_id,
+                "comitter_steam_accountname": committer.steam_accountname,
+                "comitter_steam_personaname": committer.steam_personaname       
+            }
+               
+            value = {
+                "utc_timestamp": datetime.datetime.utcnow().timestamp(),
+                "hunt_mission_event_bag_id": int(event),
+                "hunt_mission_event_reward_id": int(event_data['reward']),
+                "hunt_mission_event_reward_size": int(event_data['rewardSize']),
+                "hunt_mission_event_ui_icon_1": event_data['iconPath'],
+                "hunt_mission_event_ui_icon_2": event_data['iconPath2'],
+                "hunt_mission_event_ui_name_1": event_data['uiName'],
+                "hunt_mission_event_ui_name_2": event_data['uiName2'],
+                "hunt_mission_event_descriptor_name": event_data['descriptorName'],
+                "hunt_mission_event_descriptor_score": int(event_data['descriptorScore']),
+                "hunt_mission_event_descriptor_type": int(event_data['descriptorType']),   
+                "hunt_mission_event_category": event_data['category'],
+                "hunt_mission_event_amount": int(event_data['amount'])  
+            }
+            
+            messages.append((key, value))
+        
+        return messages
         
     
-    # Make kill log events
+    # Make committer kill log
 
 
 #################################################################################################

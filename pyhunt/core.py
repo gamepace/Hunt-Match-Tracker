@@ -160,11 +160,16 @@ class huntClient():
                     )
                     
                     # Make committer event bags
-                    
-                    
+                    self.logger.info(f"huntshowdown_mission_event_{'dev' if self.debug == True else 'prod'}")
+                    mission_event_messages = self.hunt.generate_mission_event_messages(new_hash, self.steam_user, self.json_attributes)
+                    self.product_messages(
+                        mission_event_messages,
+                        f"huntshowdown_mission_event_{'dev' if self.debug == True else 'prod'}", 
+                        Path("./avro/io.gamepace.huntshowdown.mission.event.key.avsc").absolute(),
+                        Path("./avro/io.gamepace.huntshowdown.mission.event.value.avsc").absolute()
+                    )
                     # Make match kill feed
-                    
-                                       
+             
                     
                     self.logger.info(f"Finished processing new match.")
                  
