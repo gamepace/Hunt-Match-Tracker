@@ -13,6 +13,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Build exe
     steps:
     - uses: actions/checkout@v2
 
@@ -21,8 +22,38 @@ jobs:
       with:
         path: .
         spec: hunt-match-tracker.spec
+    
+    # Version & upload file
+    - name: version
+      run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
+      id: version
 
     - uses: actions/upload-artifact@v2
       with:
-        name: Hunt-Match-Tracker.exe
+        name: Hunt-Match-Tracker_${{ steps.version.outputs.version }}.exe
         path: dist/windows
+
+    # Create release
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ steps.version.outputs.version }}
+        tag_name: ${{ github.ref }}
+    
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: upload windows artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/windows/hunt-match-tracker.exe
+        asset_name: hunt-match-tracker.exe
+        asset_content_type: application/octet-stream
+
+    
