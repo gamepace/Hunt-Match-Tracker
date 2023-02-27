@@ -17,6 +17,8 @@ jobs:
     # Build exe
     steps:
     - uses: actions/checkout@v2
+      with:
+        python-version: '3.11' 
 
     - name: Package Application
       uses: JackMcKew/pyinstaller-action-windows@main
