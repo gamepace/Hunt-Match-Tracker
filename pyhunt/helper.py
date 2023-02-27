@@ -196,7 +196,7 @@ class huntHelper():
         
         return match_hash
     
-    def generate_player_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_player_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []
         
         # for each player
@@ -224,7 +224,7 @@ class huntHelper():
         return messages
     
     
-    def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []
         
         # For each team
@@ -270,7 +270,7 @@ class huntHelper():
         return messages 
     
     # Make match event
-    def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple[dict]:
+    def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple:
         key = {
             "match_code": match_hash,
             "event_code": match_hash,
@@ -296,7 +296,7 @@ class huntHelper():
         return (key, value)
 
     # Make committer event log
-    def generate_mission_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_mission_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []
         
         for event in json_attributes['MissionBagEntry']:
@@ -331,7 +331,7 @@ class huntHelper():
         
     
     # Make committer kill log
-    def generate_match_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_match_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []                    
         
         for team in json_attributes['MissionBagPlayer']:
