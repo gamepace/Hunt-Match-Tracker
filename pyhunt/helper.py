@@ -133,7 +133,7 @@ class huntHelper():
     def __init__(self) -> None: 
         pass
         
-    def get_hunt_json_attributes(self, attributes_path:Path|WindowsPath|PosixPath) -> dict:
+    def get_hunt_json_attributes(self, attributes_path:Path) -> dict:
         tree = xml.etree.ElementTree.parse(attributes_path)
         root = tree.getroot()
         
