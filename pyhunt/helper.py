@@ -34,7 +34,7 @@ class steamHelper():
             return None
     
     
-    def get_steam_library_pathes(self) -> list[Path]:
+    def get_steam_library_pathes(self) -> list:
         """This function returns all locations where steam apps are installed.
 
         Returns:
@@ -53,7 +53,7 @@ class steamHelper():
         
     
     
-    def get_steam_installed_apps(self) -> list[steam_app]:
+    def get_steam_installed_apps(self) -> list:
         """This function returns all installed steam apps on the system.
 
         Returns:
