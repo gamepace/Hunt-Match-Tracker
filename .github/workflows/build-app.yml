@@ -20,7 +20,8 @@ jobs:
 
     # Build exe
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
       with:
         python-version: '3.11' 
 
@@ -46,13 +47,12 @@ jobs:
     #     spec: hunt-match-tracker.spec
 
     # Build python script into a stand-alone exe
-    - uses: Nuitka/Nuitka-Action@v0.4
-      with:
-        script-name: hunt-match-tracker.spec.py
-    
+    - name: Build executable
+      run: |
+        pyinstaller -F hunt-match-tracker.py --add-data="avro/*;avro"
 
     # Create release
-    - name: release
+    - name: Create release ${{ github.ref }}
       uses: actions/create-release@v1
       id: create_release
       with:
@@ -64,13 +64,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
-    - name: upload windows artifact
+    - name: Upload Windows Artifact
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/windows/hunt-match-tracker.exe
+        asset_path: dist/hunt-match-tracker.exe
         asset_name: hunt-match-tracker-${{ github.ref_name }}.exe
         asset_content_type: application/octet-stream
 
