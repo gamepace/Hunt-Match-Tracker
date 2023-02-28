@@ -39,17 +39,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Build package
-    # - name: Package Application
-    #   uses: JackMcKew/pyinstaller-action-windows@main
-    #   with:
-    #     path: .
-    #     spec: hunt-match-tracker.spec
-
     # Build python script into a stand-alone exe
     - name: Build executable
       run: |
         pyinstaller -F hunt-match-tracker.py --add-data="avro/*;avro"
+    
+    - name: Generate checksum
+      run: |
+        $(CertUtil -hashfile dist/hunt-match-tracker-1.0.8.exe SHA512)[1] -replace " ","" > dist/checksum.txt
 
     # Create release
     - name: Create release ${{ github.ref }}
@@ -60,6 +57,8 @@ jobs:
         prerelease: false
         release_name: Release ${{ github.ref }}
         tag_name: ${{ github.ref }}
+        body_path:
+          dist/checksum.txt
     
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -74,4 +73,5 @@ jobs:
         asset_name: hunt-match-tracker-${{ github.ref_name }}.exe
         asset_content_type: application/octet-stream
 
-    
+
+  
