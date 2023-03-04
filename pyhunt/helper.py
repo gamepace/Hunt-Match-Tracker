@@ -20,7 +20,7 @@ class steamHelper():
     def __init__(self) -> None:
         pass
     
-    def get_steam_install_location(self) -> Path|None:
+    def get_steam_install_location(self) -> Path:
         """This function looks into the windows registry and finds the steam installation path.
 
         Returns:
@@ -34,7 +34,7 @@ class steamHelper():
             return None
     
     
-    def get_steam_library_pathes(self) -> list[Path] | None:
+    def get_steam_library_pathes(self) -> list:
         """This function returns all locations where steam apps are installed.
 
         Returns:
@@ -53,7 +53,7 @@ class steamHelper():
         
     
     
-    def get_steam_installed_apps(self) -> list[steam_app] | None:
+    def get_steam_installed_apps(self) -> list:
         """This function returns all installed steam apps on the system.
 
         Returns:
@@ -80,7 +80,7 @@ class steamHelper():
                 return installed_apps
             
     
-    def get_hunt_steam_app(self) -> steam_app | None:
+    def get_hunt_steam_app(self) -> steam_app:
         """This function finds Hunt: Showdown (594650).
 
         Returns:
@@ -94,7 +94,7 @@ class steamHelper():
                     return app
 
     
-    def get_hunt_attributes(self) -> Path | None:
+    def get_hunt_attributes(self) -> Path:
         """This function returns a path to the attributes.xml file of Hunt: Showdown.
 
         Returns:
@@ -109,7 +109,7 @@ class steamHelper():
                 return attributes
     
     
-    def get_steam_current_user(self) -> steam_user | None:
+    def get_steam_current_user(self) -> steam_user:
         steam_path = self.get_steam_install_location()    
 
         if steam_path:
@@ -126,15 +126,14 @@ class steamHelper():
                             user['AccountName'], 
                             user['PersonaName']
                         )
-            
-            
+                
      
 ## Hunt Showdown Helper Class     
 class huntHelper():
     def __init__(self) -> None: 
         pass
         
-    def get_hunt_json_attributes(self, attributes_path:Path|WindowsPath|PosixPath) -> dict:
+    def get_hunt_json_attributes(self, attributes_path:Path) -> dict:
         tree = xml.etree.ElementTree.parse(attributes_path)
         root = tree.getroot()
         
@@ -197,7 +196,7 @@ class huntHelper():
         
         return match_hash
     
-    def generate_player_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_player_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []
         
         # for each player
@@ -225,7 +224,7 @@ class huntHelper():
         return messages
     
     
-    def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_team_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []
         
         # For each team
@@ -271,7 +270,7 @@ class huntHelper():
         return messages 
     
     # Make match event
-    def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple[dict]:
+    def generate_match_message(self, match_hash:str, committer:steam_user, json_attributes:dict) -> tuple:
         key = {
             "match_code": match_hash,
             "event_code": match_hash,
@@ -297,7 +296,7 @@ class huntHelper():
         return (key, value)
 
     # Make committer event log
-    def generate_mission_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_mission_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []
         
         for event in json_attributes['MissionBagEntry']:
@@ -332,7 +331,7 @@ class huntHelper():
         
     
     # Make committer kill log
-    def generate_match_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list[tuple[dict]]:
+    def generate_match_event_messages(self, match_hash:str, committer:steam_user, json_attributes:dict) -> list:
         messages = []                    
         
         for team in json_attributes['MissionBagPlayer']:

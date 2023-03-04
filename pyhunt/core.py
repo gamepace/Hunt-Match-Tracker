@@ -2,6 +2,7 @@ from .helper import *
 import time
 import logging
 import json
+import sys
 
 from confluent_kafka import avro
 from confluent_kafka.avro import AvroProducer
@@ -48,6 +49,8 @@ class huntClient():
         self.logger.info('Get Hunt: Showdow attributes.xml path...')
         self.attributes_path = self.steam.get_hunt_attributes()
         
+        self.resource_path = self.get_resource_path()
+        
         # Setup KAFKA config
         self.kafka_config = {   
             "bootstrap.servers": "kafka.b-raum.com:2095",
@@ -77,6 +80,18 @@ class huntClient():
         
         pass
     
+    def get_resource_path(self):
+        """ Get absolute path to the exec folder, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        
+        self.logger.info(base_path)
+        
+        return base_path
+        
      
     def load_config(self):
         try:
@@ -135,8 +150,8 @@ class huntClient():
                     self.product_messages(
                         player_messages, 
                         f"huntshowdown_player_meta_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.player.meta.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.player.meta.value.avsc").absolute()
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.player.meta.key.avsc").absolute(),
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.player.meta.value.avsc").absolute()
                     )   
                     
                     # Make team feed
@@ -145,8 +160,8 @@ class huntClient():
                     self.product_messages(
                         team_messages, 
                         f"huntshowdown_team_meta_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.team.meta.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.team.meta.value.avsc").absolute()
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.team.meta.key.avsc").absolute(),
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.team.meta.value.avsc").absolute()
                     )
                     
                     # Make match feed
@@ -155,8 +170,8 @@ class huntClient():
                     self.product_messages(
                         [match_message], 
                         f"huntshowdown_match_meta_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.match.meta.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.match.meta.value.avsc").absolute()
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.match.meta.key.avsc").absolute(),
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.match.meta.value.avsc").absolute()
                     )
                     
                     # Make event bags
@@ -165,8 +180,8 @@ class huntClient():
                     self.product_messages(
                         mission_event_messages,
                         f"huntshowdown_mission_event_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.mission.event.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.mission.event.value.avsc").absolute()
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.mission.event.key.avsc").absolute(),
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.mission.event.value.avsc").absolute()
                     )
                     
                     # Make match kill feed
@@ -175,8 +190,8 @@ class huntClient():
                     self.product_messages(
                         match_event_messages,
                         f"huntshowdown_match_event_{'dev' if self.debug == True else 'prod'}", 
-                        Path("./avro/io.gamepace.huntshowdown.match.event.key.avsc").absolute(),
-                        Path("./avro/io.gamepace.huntshowdown.match.event.value.avsc").absolute()
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.match.event.key.avsc").absolute(),
+                        Path(self.resource_path, "avro/io.gamepace.huntshowdown.match.event.value.avsc").absolute()
                     )
                     
                     self.logger.info(f"Finished processing new match.")

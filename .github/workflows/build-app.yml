@@ -1,19 +1,77 @@
 name: Build Python Application
 
-on: 
+on:
   push:
-    branches: [ 'master' ]
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 
 permissions:
-  contents: read
+  write-all
 
 jobs:
   build:
-    runs-on: ubuntu-latest
 
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      matrix: 
+        python-version: ['3.11' ]
+
+    # Build exe
     steps:
-    - uses: actions/checkout@v3
-    - name: List repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        python-version: '3.11' 
+
+    # setup python
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    # You can test your matrix by printing the current Python version
+    - name: Display Python version
+      run: python -c "import sys; print(sys.version)"
+
+    - name: Install dependencies
       run: |
-        ls $({ github.workspace })
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # Build python script into a stand-alone exe
+    - name: Build executable
+      run: |
+        pyinstaller -F hunt-match-tracker.py --add-data="avro/*;avro"
+    
+    - name: Generate checksum
+      shell: pwsh
+      run: "$(CertUtil -hashfile $env:GITHUB_ACTION_PATH/dist/hunt-match-tracker-1.0.8.exe SHA512)[1] -replace ' ','' > dist/checksum.txt"
+
+    # Create release
+    - name: Create release ${{ github.ref }}
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref }}
+        body_path:
+          checksum.txt
+    
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Upload Windows Artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/hunt-match-tracker.exe
+        asset_name: hunt-match-tracker-${{ github.ref_name }}.exe
+        asset_content_type: application/octet-stream
+
+
+  
