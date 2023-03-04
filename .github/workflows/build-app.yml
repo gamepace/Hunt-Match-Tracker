@@ -57,8 +57,9 @@ jobs:
         prerelease: false
         release_name: Release ${{ github.ref }}
         tag_name: ${{ github.ref }}
-        body_path:
-          checksum.txt
+        body:
+        # body_path:
+        #   checksum.txt
     
       env:
         GITHUB_TOKEN: ${{ github.token }}
