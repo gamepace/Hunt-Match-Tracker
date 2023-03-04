@@ -45,8 +45,8 @@ jobs:
         pyinstaller -F hunt-match-tracker.py --add-data="avro/*;avro"
     
     - name: Generate checksum
-      run: |
-        $(CertUtil -hashfile dist/hunt-match-tracker-1.0.8.exe SHA512)[1] -replace ' ','' > dist/checksum.txt
+      shell: pwsh
+      run: $(CertUtil -hashfile dist/hunt-match-tracker-1.0.8.exe SHA512)[1] -replace ' ','' > dist/checksum.txt
 
     # Create release
     - name: Create release ${{ github.ref }}
