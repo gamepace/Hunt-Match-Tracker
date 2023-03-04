@@ -4,7 +4,7 @@ init requirements.txt:
 
 # Compile
 compile hunt-match-tracker.py:
-	pyinstaller -F hunt-match-tracker.py --add-data="avro/*;avro"
+	pyinstaller --clean -F hunt-match-tracker.py --add-data="avro/*;avro"
 
 # Testing
 test:
